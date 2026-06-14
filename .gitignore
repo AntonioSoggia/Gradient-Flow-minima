@@ -1,0 +1,17 @@
+# Ignore specific file extensions
+*.csv
+*.pdf
+*.log
+*.txt
+*.pkl
+*.bak
+*.tmp
+*.pyc
+*.ipynb_checkpoints
+*.png
+*.iml
+*.xml
+# Ignore common generated folders
+dist/
+build/
+out/
