@@ -3,6 +3,8 @@ from multiprocessing import Pool, cpu_count
 from Function.Sympy_functions import FunctionSimpy
 import sympy as sp
 from plot_cases import *
+import os
+from dotenv import load_dotenv
 
 
 class GradientDescent:
@@ -109,25 +111,26 @@ class GradientDescent:
             if checkpoint_interval is not None and checkpoint_interval > 0 and (step + 1) % checkpoint_interval == 0:
                 trajectory.append((E.copy(), D.copy()))
 
-        # --- MODIFIED LOGIC FOR RETURN TYPE BASED ON CHECKPOINTING AND FULL_TRAJECTORY ---
+        # --- RETURN TYPE BASED ON CHECKPOINTING AND FULL_TRAJECTORY ---
         if checkpoint_interval is not None and checkpoint_interval > 0:
             # If checkpointing is active, always return the full trajectory list
             if not trajectory or not (np.array_equal(trajectory[-1][0], E) and np.array_equal(trajectory[-1][1], D)):
                 trajectory.append((E.copy(), D.copy()))
             return trajectory
-      #  else:  # If no checkpoint interval
-      #      if self.full_trajectory:
-      #          # If full_trajectory is True, ensure the initial point is included and return the full trajectory list
-      #          if not trajectory:  # This means no checkpoints were added, but full_trajectory is True
-      #              trajectory.append((init_E.copy(), init_D.copy()))  # Add initial point
-      #          # Ensure the final point is included if it's not already the last one
-      #          if not trajectory or not (
-      #                  np.array_equal(trajectory[-1][0], E) and np.array_equal(trajectory[-1][1], D)):
-      #              trajectory.append((E.copy(), D.copy()))
-      #          return trajectory
-       #     else:
+        else:
+            # If no checkpoint interval
+            if self.full_trajectory:
+                # If full_trajectory is True, ensure the initial point is included and return the full trajectory list
+                if not trajectory:  # This means no checkpoints were added, but full_trajectory is True
+                    trajectory.append((init_E.copy(), init_D.copy()))  # Add initial point
+                # Ensure the final point is included if it's not already the last one
+                if not trajectory or not (
+                        np.array_equal(trajectory[-1][0], E) and np.array_equal(trajectory[-1][1], D)):
+                    trajectory.append((E.copy(), D.copy()))
+                return trajectory
+            else:
                 # If full_trajectory is False and no checkpoint_interval, return just the final (E, D) tuple
-       #         return (E, D)  # Return a tuple, not a list
+                return (E, D)  # Return a tuple, not a list
 
     def safe_simulate_gradient_flow(self, params, checkpoint_interval=None):
         init_E, init_D = params
@@ -251,23 +254,38 @@ class GradientDescent:
         return formatted_results
 
 
-if __name__ == '__main__':
-    config = {
-        "eta": 1e-6,
-        "steps": 10000,
-        "tol": 1e-5,
-        "n_points": 10,
-        "E_range": (.5, .6),
-        "D_range": (.5, .6),
-        "sigma2": 0,
-        "grad_type": "combined",
-        "full_trajectory": True,
-        "use_1D": False,
-        "w0_even": 5,
-        "w0_odd": 6,
-        "w0": 6,
-        "subs": 0
+def load_config_from_env():
+    """Load configuration from environment variables with defaults."""
+    load_dotenv()  # Load from .env file
+    
+    return {
+        "eta": float(os.getenv("ETA", "1e-6")),
+        "steps": int(os.getenv("STEPS", "10000")),
+        "tol": float(os.getenv("TOL", "1e-5")),
+        "n_points": int(os.getenv("N_POINTS", "10")),
+        "E_range": (float(os.getenv("E_RANGE_MIN", "0.5")), float(os.getenv("E_RANGE_MAX", "0.6"))),
+        "D_range": (float(os.getenv("D_RANGE_MIN", "0.5")), float(os.getenv("D_RANGE_MAX", "0.6"))),
+        "sigma2": float(os.getenv("SIGMA2", "0")),
+        "grad_type": os.getenv("GRAD_TYPE", "combined"),
+        "full_trajectory": os.getenv("FULL_TRAJECTORY", "True").lower() == "true",
+        "use_1D": os.getenv("USE_1D", "False").lower() == "true",
+        "w0_even": int(os.getenv("W0_EVEN", "5")),
+        "w0_odd": int(os.getenv("W0_ODD", "6")),
+        "w0": int(os.getenv("W0", "6")),
+        "subs": int(os.getenv("SUBS", "0"))
     }
+
+
+if __name__ == '__main__':
+    # Load configuration from environment variables or use defaults
+    config = load_config_from_env()
+    
+    print("Loaded configuration:")
+    print(f"  eta: {config['eta']}")
+    print(f"  steps: {config['steps']}")
+    print(f"  sigma2: {config['sigma2']}")
+    print(f"  grad_type: {config['grad_type']}")
+    print(f"  use_1D: {config['use_1D']}")
     grad = GradientDescent(config)
     print("Plotting gradient flow...")
     grad.plot_gradient_flow()

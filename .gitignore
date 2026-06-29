@@ -1,17 +1,117 @@
-# Ignore specific file extensions
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# =============================================================================
+# IDE
+# =============================================================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+.eclipse/
+
+# =============================================================================
+# Data and Results
+# =============================================================================
+# Result files
+*.txt
 *.csv
 *.pdf
 *.log
-*.txt
 *.pkl
 *.bak
 *.tmp
-*.pyc
-*.ipynb_checkpoints
 *.png
-*.iml
-*.xml
-# Ignore common generated folders
-dist/
-build/
-out/
+*.jpg
+*.jpeg
+
+# Output directories
+outputs/
+results/
+
+# Specific result files from this project
+gplearn_regression_results.txt
+sparse_regression_results.txt
+symbolic_regression_results_*.txt
+gradient_descent_results_*.txt
+symbolic_cluster_*.txt
+TDA_*.csv
+TDA_*.txt
+GradientFlow*.pdf
+
+# Checkpoint files
+*.ckpt
+*_checkpoints/
+
+# =============================================================================
+# OS
+# =============================================================================
+.DS_Store
+Thumbs.db
+
+# =============================================================================
+# Logs
+# =============================================================================
+*.log
+logs/
+
+# =============================================================================
+# Local overrides
+# =============================================================================
+!.env.example
+!requirements.txt
+!setup.py
+!README.md

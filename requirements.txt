@@ -1,0 +1,19 @@
+# =============================================================================
+# Gradient Flow - Python Requirements
+# =============================================================================
+
+# Core dependencies
+numpy>=1.21.0
+sympy>=1.10.0
+matplotlib>=3.4.0
+pandas>=1.3.0
+
+# Optional dependencies (for development/testing)
+# pytest>=7.0.0
+# pytest-cov>=3.0.0
+# black>=22.0.0
+# flake8>=4.0.0
+# mypy>=0.900
+
+# For loading .env files
+python-dotenv>=0.19.0

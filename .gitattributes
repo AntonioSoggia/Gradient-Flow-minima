@@ -1,0 +1,19 @@
+# Handle line endings consistently
+* text=auto
+
+# Python files should use LF line endings
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.rst text eol=lf
+*.csv text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary files should not be modified
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.pkl binary

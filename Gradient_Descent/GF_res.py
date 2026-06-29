@@ -1,11 +1,34 @@
 import numpy as np
 import pandas as pd
 import os
+from dotenv import load_dotenv
 from Gradient_Flow import GradientDescent
 
-# Assuming GradientDescent, FunctionSimpy, etc. are imported or defined above this function
+# Load environment variables
+load_dotenv()
 
-def extract_and_save_results(checkpoint_interval=5000):
+
+def load_config_from_env():
+    """Load configuration from environment variables with defaults for GF_res."""
+    return {
+        "eta": float(os.getenv("ETA", "5e-3")),
+        "steps": int(os.getenv("STEPS", "25000")),
+        "tol": float(os.getenv("TOL", "1e-6")),
+        "n_points": int(os.getenv("N_POINTS", "1")),
+        "E_range": (float(os.getenv("E_RANGE_MIN", "1")), float(os.getenv("E_RANGE_MAX", "1.1"))),
+        "D_range": (float(os.getenv("D_RANGE_MIN", "1")), float(os.getenv("D_RANGE_MAX", "1.1"))),
+        "sigma2": None,  # Will be set in loop
+        "grad_type": os.getenv("GRAD_TYPE", "combined"),
+        "full_trajectory": os.getenv("FULL_TRAJECTORY", "True").lower() == "true",
+        "use_1D": os.getenv("USE_1D", "False").lower() == "true",
+        "w0_even": int(os.getenv("W0_EVEN", "5")),
+        "w0_odd": int(os.getenv("W0_ODD", "6")),
+        "w0": int(os.getenv("W0", "6")),
+        "subs": int(os.getenv("SUBS", "0"))
+    }
+
+
+def extract_and_save_results(checkpoint_interval=None):
     """
     Extracts gradient descent results and saves final objectives and checkpoints.
 
@@ -21,25 +44,20 @@ def extract_and_save_results(checkpoint_interval=5000):
     # We'll get it from the first config iteration.
     point_dimension = 0
 
-    for i in range(1, 3):  # Loop through sigma2 values from 1 to 15
-        config = {
-            "eta": 5e-3,
-            "steps": 25000,
-            "tol": 1e-6,
-            "n_points": 1,  # Reduced number of parallel points for quicker demonstration
-            "E_range": (1, 1.1),
-            "D_range": (1, 1.1),
-            "sigma2": i,
-            "grad_type": "combined",
-            "full_trajectory": True,
-            # This flag in config now only affects internal logic if you still use it for other purposes,
-            # but the checkpointing will always return a trajectory.
-            "use_1D": False,
-            "w0_even": 5,
-            "w0_odd": 6,
-            "w0": 6,
-            "subs": 0
-        }
+    # Get checkpoint interval from env or use provided parameter
+    if checkpoint_interval is None:
+        checkpoint_interval = int(os.getenv("CHECKPOINT_INTERVAL", "5000"))
+    
+    # Get range for sigma2 values from environment or use default
+    sigma2_start = int(os.getenv("SIGMA2_START", "1"))
+    sigma2_end = int(os.getenv("SIGMA2_END", "3"))
+    
+    for i in range(sigma2_start, sigma2_end):  # Loop through sigma2 values
+        # Load base config from environment
+        config = load_config_from_env()
+        config["sigma2"] = i
+        
+        print(f"Running with sigma2={i}, checkpoint_interval={checkpoint_interval}")
 
         grad = GradientDescent(config)
 
@@ -72,15 +90,17 @@ def extract_and_save_results(checkpoint_interval=5000):
             # ---------------------------------------------------------
 
     # --- Save final objectives to the original file ---
-    output_file_objectives = "/home/antonio/Desktop/Notebooks/PythonProject/Regression/gradient_descent_results_sigma_mix_TDA.csv"
+    # Use relative path and create outputs directory
+    output_dir = "outputs"
+    output_file_objectives = os.path.join(output_dir, "gradient_descent_results_sigma_mix_TDA.csv")
     # Ensure the output directory exists
-    os.makedirs(os.path.dirname(output_file_objectives), exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
     with open(output_file_objectives, "w") as f:
         for res in all_final_objectives:
             f.write(res + "\n")
     print(f"Final objectives saved to: {output_file_objectives}")
 
-    output_file_checkpoints = "TDA.csv"
+    output_file_checkpoints = os.path.join(output_dir, "TDA.csv")
     max_cols = 0
     if all_checkpoints_data:
         max_cols = max(len(row) for row in all_checkpoints_data)
